@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
