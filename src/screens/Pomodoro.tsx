@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { hour, minute } from "../atoms";
+import { hourSelector, minuteSelector } from "../atoms";
 
 // styled + motion
 const Title = styled.h1`
@@ -54,6 +54,18 @@ const Minute = styled.div`
 
   background-color: #f3f3f3;
   border-radius: 25px;
+
+  // 수평정렬
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    color: tomato;
+    font-size: 120px;
+    font-weight: 800;
+    text-align: center;
+  }
 `;
 
 const BtnWrapper = styled.div`
@@ -88,24 +100,52 @@ const boxVars = {
 
 // main
 function Pomodoro() {
-  const [playFlag, setPlayFlag] = useState(true);
-  const [hours, setHours] = useRecoilState(hour);
-  const [minutes, setMinutes] = useRecoilState(minute);
+  const [playFlag, setPlayFlag] = useState(false);
+  const [hour, setHour] = useRecoilState(hourSelector);
+  const [minute, setMinute] = useRecoilState(minuteSelector);
 
-  // function
-  const onChangePlayIcon = () => setPlayFlag((flag) => !flag);
+  // 버튼을 클릭하면 play 아이콘이 바뀌어야 한다.
+  // 그리고 1초 뒤에 59초가 되어야 한다.
+  const onChangePlayIcon = () => {
+    let flag = !playFlag;
+    setPlayFlag(flag);
+
+    // 0초일 경우엔 60 - 1 을 수행하도록 한다.
+    flag && Timer();
+  };
+
+  function Timer() {
+    setTimeout(() => {
+      // 분
+      minute !== 0 ? setMinute(minute - 1) : setMinute(59);
+      // 시
+      hour !== 0 && minute === 0 && setHour(hour - 1);
+    }, 1000);
+  }
+
+  // 최초 한번은 실행되는데, play가 되어야지만 수행되어야 한다.
+  useEffect(() => {
+    if (playFlag) {
+      // 1초동안 수행해야 함.
+      setTimeout(() => {
+        Timer();
+      }, 1000);
+    }
+  }, [minute]);
 
   return (
     <>
       <Title>Pomodoro</Title>
       <Wrapper>
         <Hour>
-          <span>{hours}</span>
+          <span>{hour}</span>
         </Hour>
         <Division>
           <span>:</span>
         </Division>
-        <Minute />
+        <Minute>
+          <span>{minute === 0 ? "0" + minute : minute}</span>
+        </Minute>
       </Wrapper>
 
       <BtnWrapper>
@@ -115,7 +155,7 @@ function Pomodoro() {
           whileHover="hover"
           whileTap="click"
         >
-          {playFlag ? (
+          {!playFlag ? (
             <SvgButton
               fill="white"
               viewBox="0 0 20 20"
