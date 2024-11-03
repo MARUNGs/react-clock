@@ -2,7 +2,7 @@ import { atom, selector } from "recoil";
 
 const hourState = atom<number>({
   key: "hour",
-  default: 0,
+  default: 25,
 });
 
 const minuteState = atom<number>({

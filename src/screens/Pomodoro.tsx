@@ -25,24 +25,29 @@ const Wrapper = styled.div`
   gap: 2%;
 `;
 
-const Hour = styled.div`
+const Hour = styled(motion.button)`
+  border: none; /* 테두리 제거 */
+  outline: none; /* 클릭했을 때 생기는 외곽선 제거 */
+  box-shadow: none; /* 그림자 효과 제거 */
+  -webkit-appearance: none; /* Safari/Chrome의 기본 스타일 제거 */
+  -moz-appearance: none; /* Firefox의 기본 스타일 제거 */
+
   width: 200px;
   height: 300px;
 
-  background-color: #f3f3f3;
+  /* background-color: #f3f3f3; */
   border-radius: 25px;
+  border-color: tomato;
 
   // 수평정렬
   display: flex;
   justify-content: center;
   align-items: center;
 
-  span {
-    color: tomato;
-    font-size: 120px;
-    font-weight: 800;
-    text-align: center;
-  }
+  color: tomato;
+  font-size: 120px;
+  font-weight: 800;
+  text-align: center;
 `;
 
 const Division = styled.div`
@@ -53,7 +58,13 @@ const Division = styled.div`
   }
 `;
 
-const Minute = styled.div`
+const Minute = styled(motion.button)`
+  border: none; /* 테두리 제거 */
+  outline: none; /* 클릭했을 때 생기는 외곽선 제거 */
+  box-shadow: none; /* 그림자 효과 제거 */
+  -webkit-appearance: none; /* Safari/Chrome의 기본 스타일 제거 */
+  -moz-appearance: none; /* Firefox의 기본 스타일 제거 */
+
   width: 200px;
   height: 300px;
 
@@ -65,12 +76,10 @@ const Minute = styled.div`
   justify-content: center;
   align-items: center;
 
-  span {
-    color: tomato;
-    font-size: 120px;
-    font-weight: 800;
-    text-align: center;
-  }
+  color: tomato;
+  font-size: 120px;
+  font-weight: 800;
+  text-align: center;
 `;
 
 const BtnWrapper = styled.div`
@@ -78,7 +87,7 @@ const BtnWrapper = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 5%;
-  margin-bottom: 10%;
+  margin-bottom: 5%;
 `;
 
 const Btn = styled(motion.button)`
@@ -103,8 +112,17 @@ const BottomWrapper = styled.div`
   span {
     font-size: 20px;
     font-weight: 700;
+    margin-top: 5%;
+    margin-bottom: 5%;
     color: rgba(255, 255, 255, 0.7);
   }
+`;
+
+const BottomItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 // animation -----
@@ -114,6 +132,21 @@ const boxVars = {
   },
   click: {
     scale: 0.8,
+  },
+};
+
+const btnVars = {
+  start: {
+    opacity: 0,
+    scale: 0.5,
+  },
+  doing: {
+    opacity: 1,
+    scale: 1,
+  },
+  exit: {
+    opacity: 0,
+    scale: 1,
   },
 };
 
@@ -133,11 +166,12 @@ function Pomodoro() {
   // round가 4/4라면, 0/4로 되돌리고, goalPoint + 1를 계산한다.
   const plusRoundAndGoal = () => {
     if (!(hour === 0 && minute === 0)) return;
-
     const { current, target } = roundInfo;
 
     // 이 함수를 실행한 것 자체가 +1를 하기 위함.
     setRoundInfo({ current: current + 1, target });
+    setHour(25);
+    setMinute(0);
 
     // 만약 round를 모두 채웠다면
     if (current / target === 1) {
@@ -154,7 +188,7 @@ function Pomodoro() {
     if (playFlag) {
       const timer = setTimeout(() => {
         // 분
-        minute !== 0 ? setMinute(minute - 1) : setMinute(3);
+        minute !== 0 ? setMinute(minute - 1) : setMinute(59);
         // 시
         hour !== 0 && minute === 0 && setHour(hour - 1);
       }, 1000);
@@ -170,14 +204,26 @@ function Pomodoro() {
     <>
       <Title>Pomodoro</Title>
       <Wrapper>
-        <Hour>
-          <span>{hour < 10 ? "0" + hour : hour}</span>
+        <Hour
+          key={hour}
+          variants={btnVars}
+          initial="start"
+          animate="doing"
+          exit="exit"
+        >
+          {hour < 10 ? "0" + hour : hour}
         </Hour>
         <Division>
           <span>:</span>
         </Division>
-        <Minute>
-          <span>{minute === 0 ? "0" + minute : minute}</span>
+        <Minute
+          key={minute}
+          variants={btnVars}
+          initial="start"
+          animate="doing"
+          exit="exit"
+        >
+          {minute === 0 ? "0" + minute : minute}
         </Minute>
       </Wrapper>
 
@@ -209,12 +255,18 @@ function Pomodoro() {
       </BtnWrapper>
 
       <BottomWrapper>
-        <span>
-          ROUND: {roundInfo.current} / {roundInfo.target} <br />
-        </span>
-        <span>
-          GOAL: {goalInfo.current} / {goalInfo.target}
-        </span>
+        <BottomItem>
+          <span>
+            {roundInfo.current} / {roundInfo.target} <br />
+          </span>
+          <span>ROUND</span>
+        </BottomItem>
+        <BottomItem>
+          <span>
+            {goalInfo.current} / {goalInfo.target}
+          </span>
+          <span>GOAL</span>
+        </BottomItem>
       </BottomWrapper>
     </>
   );
